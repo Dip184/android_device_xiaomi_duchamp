@@ -1,97 +1,30 @@
 import /keymint.service.mitee.rc
 import /tee-supplicant.rc
 import /miteelog.rc
-import /vibrator.haptic.hal.rc
+import /android.hardware.boot-service.mtk.rc
 
 on init
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "11201000.usb0"
     setprop sys.usb.ffs.aio_compat 1
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
+    copy /vendor/lib64/libkeymaster_messages.so /system/lib64/libkeymaster_messages.so
+    copy /vendor/lib64/libkeymaster_portable.so /system/lib64/libkeymaster_portable.so
+    copy /vendor/lib64/libkeymint.so /system/lib64/libkeymint.so
+    copy /vendor/lib64/libkeymint_support.so /system/lib64/libkeymint_support.so
+    copy /vendor/lib64/libkeymaster4support.so /system/lib64/libkeymaster4support.so
+    copy /vendor/lib64/lib_android_keymaster_keymint_utils.so /system/lib64/lib_android_keymaster_keymint_utils.so
+    copy /vendor/lib64/libpuresoftkeymasterdevice.so /system/lib64/libpuresoftkeymasterdevice.so
+    copy /vendor/lib64/libsoft_attestation_cert.so /system/lib64/libsoft_attestation_cert.so
+    copy /vendor/lib64/libmtk_bsg.so /system/lib64/libmtk_bsg.so
+    copy /vendor/lib64/android.hardware.boot@1.1.so /system/lib64/android.hardware.boot@1.1.so
+    copy /vendor/lib64/android.hardware.boot-V1-ndk.so /system/lib64/android.hardware.boot-V1-ndk.so
+    symlink /dev/block/platform/bootdevice /dev/block/bootdevice
     setprop crypto.ready 1
 
 on fs
     install_keyring
-    start boot-hal-1-2
-    symlink /dev/block/platform/bootdevice /dev/block/bootdevice
-
-# We need vold early for metadata encryption
-on early-fs
-    start vold
-
-on late-fs
-    # Mount RW partitions which need run fsck
-    mount_all /first_stage_ramdisk/fstab.mt6897 --late
-
-on post-fs
-
-    exec u:r:update_engine:s0 root root -- /system/bin/mtk_plpath_utils
-    start mtk.plpath.utils.link
-
-on post-fs-data
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/f0_save
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/osc_save
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/3-005a/osc_save
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/custom_wave
-    chmod 0666  /sys/bus/i2c/drivers/aw8697_haptic/2-005a/custom_wave
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/custom_wave
-    chmod 0666  /sys/bus/i2c/drivers/aw8697_haptic/2-005a/custom_wave
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/3-005a/custom_wave
-    chmod 0666  /sys/bus/i2c/drivers/aw8697_haptic/3-005a/custom_wave
-    chmod 0666 /sys/class/qcom-haptics/lra_calibration
-    chown system system /sys/bus/i2c/drivers/aw8697_haptic/0-005a/custom_wave
-    chmod 0666  /sys/bus/i2c/drivers/aw8697_haptic/0-005a/custom_wave
-    chmod 0666 /sys/class/qcom-haptics/lra_impedance
-    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/f0_save
-    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/osc_save
-    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/custom_wave
-    chmod 0666  /sys/bus/i2c/drivers/awinic_haptic/1-005a/custom_wave
-
-service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
-    class main
-    user root
-    group root system
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
-service vibratorfeature-hal-service /vendor/bin/hw/vendor.xiaomi.hardware.vibratorfeature.service
-    class hal
-    user system
-    group system input
-    seclabel u:r:recovery:s0
-
-service vendor.gatekeeper_mitee /vendor/bin/hw/android.hardware.gatekeeper-service.mitee
-    #interface android.hardware.gatekeeper@1.0::IGatekeeper default
-    class hal
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
-
-#service set_permissive /system/bin/set_permissive.sh
-    #user root
-    #group root
-    #disabled
-    #oneshot 
-    #seclabel u:r:recovery:s0
-    
- #service overrideprops /system/bin/overrideprops.sh
-    #user root
-    #group root
-    #disabled
-    #oneshot
-    #seclabel u:r:recovery:s0
-    
-service haptic_hal /system/bin/haptic_hal.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
- 
-on property:crypto.ready=1
-    start vendor.keymint-mitee
+    restorecon_recursive /metadata
 
 on property:hwservicemanager.ready=true
     start miteelog
@@ -104,7 +37,7 @@ on property:ro.crypto.state=unsupported
     stop vendor.gatekeeper_mitee
     stop tee-supplicant
     stop miteelog
-    
+
 on property:ro.crypto.state=unencrypted
     stop vendor.keymint-mitee
     stop vendor.gatekeeper_mitee
@@ -116,20 +49,22 @@ on property:twrp.all.users.decrypted=true
     stop vendor.gatekeeper_mitee
     stop tee-supplicant
     stop miteelog
-    
-#on property:crypto.ready=0
-    #stop vendor.keymint-mitee
-    #stop vendor.gatekeeper_mitee
-    #stop tee-supplicant
-    #stop miteelog
 
-on property:twrp.modules.loaded=true
-    start haptic_hal      
+service vibratorfeature-hal-service /vendor/bin/hw/vendor.xiaomi.hardware.vibratorfeature.service
+    class hal
+    user system
+    group system input
+    disabled
+    seclabel u:r:recovery:s0
+
+service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
 
 on boot
     start health-hal-2-1
-    #start set_permissive
-    #start overrideprops
     setprop sys.usb.config adb
-
-

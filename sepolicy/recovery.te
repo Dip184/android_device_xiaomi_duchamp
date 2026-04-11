@@ -1,0 +1,44 @@
+# Allow Recovery to add and find KeyMint & Keystore services
+allow recovery hal_keymint_service:service_manager { add find };
+allow recovery hal_remotelyprovisionedcomponent_service:service_manager { add find };
+allow recovery keystore_compat_hal_service:service_manager { add find };
+allow recovery keystore_service:service_manager { add find };
+allow recovery keystore_maintenance_service:service_manager { add find };
+allow recovery keystore_metrics_service:service_manager { add find };
+allow recovery legacykeystore_service:service_manager { add find };
+
+# Allow Gatekeeper Registration 
+allow recovery default_android_service:service_manager { add find };
+allow recovery hal_gatekeeper_service:service_manager { add find };
+
+# Allow Binder communication between services
+allow recovery servicemanager:binder { call transfer };
+allow recovery keystore:binder { call transfer };
+
+# THE KILLSHOT: Allow Keystore2 to physically upgrade and manage the FBE Key
+allow recovery vold_key:keystore2_key { manage_blob use };
+
+# Allow reading the encrypted Metadata partition
+allow recovery vold_metadata_file:dir { search read open getattr };
+allow recovery vold_metadata_file:file { read open getattr };
+
+# Allow access to Keystore and Vold specific properties
+allow recovery keystore_crash_prop:file { read open getattr map };
+allow recovery keystore_crash_prop:property_service set;
+allow recovery keystore_listen_prop:file { read open getattr map };
+allow recovery vold_post_fs_data_prop:file { read open getattr map };
+
+# Stop the Miteelog / proc spam
+allow recovery proc:file { read open getattr };
+
+# Allow access to device properties for the spl script (resetprop)
+allow recovery vendor_default_prop:property_service set;
+
+# --- NEW ADDITIONS FOR ANDROID 14 ---
+# Explicitly allow keystore to manage its own keys within the recovery domain
+allow keystore vold_key:keystore2_key { manage_blob use };
+allow keystore vold_metadata_file:dir { search read open };
+allow keystore vold_metadata_file:file { read open getattr };
+
+# Allow the kernel to access the keyring
+allow recovery kernel:key { search setattr };
