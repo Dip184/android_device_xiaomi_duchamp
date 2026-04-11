@@ -1,0 +1,35 @@
+diff --git a/partitionmanager.cpp b/partitionmanager.cpp
+index 2766b4c..213ab9d 100755
+--- a/partitionmanager.cpp
++++ b/partitionmanager.cpp
+@@ -3765,23 +3765,27 @@ bool TWPartitionManager::Unmap_Super_Devices() {
+ 
+ 
+ bool TWPartitionManager::Check_Pending_Merges() {
++	int rc = access("/metadata/ota/snapshot-boot", F_OK);
++	int err = errno;
++	LOGINFO("Check_Pending_Merges: access rc=%d errno=%d\n", rc, err);
++	if (rc != 0) {
++		LOGINFO("No OTA snapshots found, skipping merge check\n");
++		return true;
++	}
+ 	auto sm = android::snapshot::SnapshotManager::NewForFirstStageMount();
+ 	if (!sm) {
+ 		LOGERR("Unable to call snapshot manager\n");
+ 		return false;
+ 	}
+-
+ 	if (!Unmap_Super_Devices()) {
+ 		LOGERR("Unable to unmap dynamic partitions.\n");
+ 		return false;
+ 	}
+-
+ 	auto callback = [&]() -> void {
+ 		double progress;
+ 		sm->GetUpdateState(&progress);
+ 		LOGINFO("waiting for merge to complete: %.2f\n", progress);
+ 	};
+-
+ 	LOGINFO("checking for merges\n");
+ 	if (!sm->HandleImminentDataWipe(callback)) {
+ 		LOGERR("Unable to check merge status\n");
