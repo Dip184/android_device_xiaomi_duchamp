@@ -205,3 +205,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkm_compat_service.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkm_compat_service.so \
     $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libvndksupport.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libvndksupport.so \
     $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libsqlite.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libsqlite.so \
+
+
+# To fix bootloop due to missing files
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/prebuilt/lib/modules,$(TARGET_COPY_OUT_VENDOR_RAMDISK)/lib/modules) \
+    $(LOCAL_PATH)/recovery/root/first_stage_ramdisk/fstab.mt6878:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.mt6878 \
+    $(LOCAL_PATH)/recovery/root/first_stage_ramdisk/fstab.emmc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.emmc
