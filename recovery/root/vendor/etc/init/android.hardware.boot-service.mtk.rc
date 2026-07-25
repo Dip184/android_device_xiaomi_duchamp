@@ -3,5 +3,6 @@ service vendor.boot-default /vendor/bin/hw/android.hardware.boot-service.mtk
     user system
     group system
     seclabel u:r:recovery:s0
+    interface aidl android.hardware.boot.IBootControl/default
 
 

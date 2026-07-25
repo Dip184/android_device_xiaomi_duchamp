@@ -1,11 +1,19 @@
 # For MTK DRM integration:
 service tee-supplicant /vendor/bin/tee-supplicant
     class core
+    user system
+    group system secure_element nfc
+    capabilities SYS_RAWIO
+    seclabel u:r:recovery:s0
+    disabled
+
+service delayed_gatekeeper /system/bin/sh -c "sleep 1; start vendor.gatekeeper_mitee"
+    class core
     user root
     group root
     disabled
+    oneshot
     seclabel u:r:recovery:s0
-
 
 on fs
     write /proc/bootprof "init tee-supplicant"
@@ -26,7 +34,6 @@ on fs
     chown system system /dev/ufs-bsg0
 #    enable vendor.keymaster-4-0-mitee
     enable vendor.keymint-mitee
-    start tee-supplicant
     mkdir /mnt/vendor/persist/data 0755 system system
     mkdir /mnt/vendor/persist/fdsd 0755 system system
     setprop vendor.teefs_state ready

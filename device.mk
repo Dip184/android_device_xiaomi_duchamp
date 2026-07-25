@@ -67,12 +67,12 @@ AB_OTA_POSTINSTALL_CONFIG += \
     POSTINSTALL_OPTIONAL_system=true
 
 # Boot control HAL
-#PRODUCT_PACKAGES += \
+PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-mtkimpl \
     android.hardware.boot@1.2-mtkimpl.recovery \
     bootctrl.mt6897.recovery
 
-#PRODUCT_PACKAGES += \
+PRODUCT_PACKAGES += \
     android.hardware.boot@1.2- \
     android.hardware.boot@1.2-impl.recovery \
     android.hardware.boot@1.2-service
@@ -106,7 +106,7 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-service.rc
 
 # Mtk plpath utils
-#PRODUCT_PACKAGES += \
+PRODUCT_PACKAGES += \
     mtk_plpath_utils \
     mtk_plpath_utils.recovery
 
@@ -119,6 +119,15 @@ PRODUCT_PACKAGES += \
     android.hardware.security.keymint \
     android.hardware.security.secureclock \
     android.hardware.security.sharedsecret
+
+PRODUCT_PACKAGES += \
+    e2fsck.vendor_ramdisk \
+    fsck.f2fs.vendor_ramdisk \
+    resize2fs.vendor_ramdisk \
+    tune2fs.vendor_ramdisk
+
+PRODUCT_PACKAGES += \
+    fstab.mt6897.vendor_ramdisk
 
 # Keystore2
 PRODUCT_PACKAGES += \
@@ -147,61 +156,50 @@ TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.health@2.0-impl-default.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.boot@1.0.so
 
-# Recovery Blobs — KeyMint + Gatekeeper HAL for FBE decryption
+# To fix bootloop due to missing files
+# Copy kernel modules to vendor_ramdisk (ramdisk00) — loaded during normal + recovery boot
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery/root/vendor/bin/hw/android.hardware.security.keymint@3.0-service.mitee:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/bin/hw/android.hardware.security.keymint@3.0-service.mitee \
-    $(LOCAL_PATH)/recovery/root/vendor/bin/hw/android.hardware.gatekeeper-service.mitee:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/bin/hw/android.hardware.gatekeeper-service.mitee \
-    $(LOCAL_PATH)/recovery/root/vendor/etc/init/android.hardware.security.keymint.mitee@3.0-service.rc:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/init/android.hardware.security.keymint.mitee@3.0-service.rc \
-    $(LOCAL_PATH)/recovery/root/vendor/etc/init/android.hardware.gatekeeper-service.mitee.rc:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/init/android.hardware.gatekeeper-service.mitee.rc \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.gatekeeper-V1-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.gatekeeper-V1-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.security.keymint-V1-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.security.keymint-V1-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.security.keymint-V3-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.security.keymint-V3-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.security.rkp-V3-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.security.rkp-V3-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.security.secureclock-V1-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.security.secureclock-V1-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.security.sharedsecret-V1-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.security.sharedsecret-V1-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/lib_android_keymaster_keymint_utils.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/lib_android_keymaster_keymint_utils.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libcppbor_external.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libcppbor_external.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libcppcose_rkp.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libcppcose_rkp.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libgatekeeper.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libgatekeeper.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libkeymaster4support.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libkeymaster4support.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libkeymaster_messages.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libkeymaster_messages.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libkeymaster_portable.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libkeymaster_portable.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libkeymint.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libkeymint.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libkeymint_remote_prov_support.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libkeymint_remote_prov_support.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libkeymint_support.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libkeymint_support.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libteecli.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libteecli.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libtrusty.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libtrusty.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libpuresoftkeymasterdevice.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libpuresoftkeymasterdevice.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libsoft_attestation_cert.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libsoft_attestation_cert.so \
-    $(LOCAL_PATH)/recovery/root/vendor/etc/vintf/manifest/android.hardware.gatekeeper-service.mitee.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest/android.hardware.gatekeeper-service.mitee.xml \
-    $(LOCAL_PATH)/recovery/root/system/etc/ld.config.recovery.txt:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/ld.config.recovery.txt \
-    $(LOCAL_PATH)/recovery/root/vendor/bin/hw/android.hardware.boot-service.mtk:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/bin/hw/android.hardware.boot-service.mtk \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libmtk_bsg.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libmtk_bsg.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.boot@1.1.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.boot@1.1.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/android.hardware.boot-V1-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/android.hardware.boot-V1-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/etc/init/android.hardware.boot-service.mtk.rc:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/init/android.hardware.boot-service.mtk.rc \
-    $(LOCAL_PATH)/recovery/root/vendor/bin/tee-supplicant:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/bin/tee-supplicant \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/libvndksupport.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libvndksupport.so \
-    $(LOCAL_PATH)/recovery/root/vendor/etc/vintf/manifest/android.hardware.boot-service.mtk.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest/android.hardware.boot-service.mtk.xml
-   # $(LOCAL_PATH)/recovery/root/system/bin/load_spl.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/load_spl.sh
-   # $(LOCAL_PATH)/recovery/root/vendor/lib64/libbinder_ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/libbinder_ndk.so \
+    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/kernel/modules,$(TARGET_COPY_OUT_VENDOR_RAMDISK)/lib/modules)
 
-# Xiaomi keystore2 stack with keymaster1 compat
+# Copy first-stage fstabs to vendor_ramdisk — required by first-stage init
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/recovery/root/system/bin/keystore2:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/keystore2 \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/android.hardware.keymaster@3.0.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/android.hardware.keymaster@3.0.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/android.hardware.keymaster@4.0.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/android.hardware.keymaster@4.0.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/android.hardware.keymaster@4.1.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/android.hardware.keymaster@4.1.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/android.hardware.security.keymint-V4-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/android.hardware.security.keymint-V4-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/android.security.compat-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/android.security.compat-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/android.system.keystore2-V5-ndk.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/android.system.keystore2-V5-ndk.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libc++.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libc++.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libhidlbase.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libhidlbase.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkeymaster4_1support.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkeymaster4_1support.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkeystore2_aaid.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkeystore2_aaid.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkeystore2_apc_compat.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkeystore2_apc_compat.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkeystore2_crypto.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkeystore2_crypto.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkm_compat.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkm_compat.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libkm_compat_service.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libkm_compat_service.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libvndksupport.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libvndksupport.so \
-    $(LOCAL_PATH)/recovery/root/vendor/lib64/keystore2/libsqlite.so:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/lib64/keystore2/libsqlite.so \
+    $(LOCAL_PATH)/recovery/root/first_stage_ramdisk/fstab.mt6897:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.mt6897 \
+    $(LOCAL_PATH)/recovery/root/first_stage_ramdisk/fstab.emmc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.emmc
+
+# Copy stock vendor_ramdisk essentials to ramdisk00 — sepolicy, context files, snapuserd, init
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/vendor_ramdisk/first_stage_ramdisk/system/bin/snapuserd:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/system/bin/snapuserd \
+    $(LOCAL_PATH)/vendor_ramdisk/system/bin/init:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/system/bin/init \
+    $(LOCAL_PATH)/vendor_ramdisk/init:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/init \
+    $(LOCAL_PATH)/vendor_ramdisk/init.recovery.hardware.rc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/init.recovery.hardware.rc \
+    $(LOCAL_PATH)/vendor_ramdisk/sepolicy:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/sepolicy \
+    $(LOCAL_PATH)/vendor_ramdisk/prop.default:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/prop.default \
+    $(LOCAL_PATH)/vendor_ramdisk/plat_file_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/plat_file_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/plat_property_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/plat_property_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/plat_service_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/plat_service_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/vendor_file_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/vendor_file_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/vendor_property_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/vendor_property_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/vendor_service_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/vendor_service_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/system_ext_file_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/system_ext_file_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/system_ext_property_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/system_ext_property_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/system_ext_service_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/system_ext_service_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/odm_file_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/odm_file_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/odm_property_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/odm_property_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/product_file_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/product_file_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/product_property_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/product_property_contexts \
+    $(LOCAL_PATH)/vendor_ramdisk/product_service_contexts:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/product_service_contexts
+
+# Copy all system/ to vendor_ramdisk — boot service, health HAL, config
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/recovery/root/system,$(TARGET_COPY_OUT_VENDOR_RAMDISK)/system)
+
+# Copy root-level RC files to vendor_ramdisk — imported by init during normal + recovery boot
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/init.recovery.mt6897.rc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/init.recovery.mt6897.rc \
+    $(LOCAL_PATH)/recovery/root/init.recovery.usb.rc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/init.recovery.usb.rc \
+    $(LOCAL_PATH)/recovery/root/tee-supplicant.rc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/tee-supplicant.rc \
+    $(LOCAL_PATH)/recovery/root/miteelog.rc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/miteelog.rc
+
+#fix arb
+PRODUCT_COPY_FILES += \
+    device/xiaomi/duchamp/recovery/root/system/bin/prepdecrypt.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/prepdecrypt.sh

@@ -1,7 +1,7 @@
-import /keymint.service.mitee.rc
 import /tee-supplicant.rc
+import /android.hardware.security.keymint.mitee@3.0-service.rc
 import /miteelog.rc
-import /android.hardware.boot-service.mtk.rc
+
 
 on init
     setprop sys.usb.configfs 1
@@ -16,46 +16,55 @@ on init
     copy /vendor/lib64/lib_android_keymaster_keymint_utils.so /system/lib64/lib_android_keymaster_keymint_utils.so
     copy /vendor/lib64/libpuresoftkeymasterdevice.so /system/lib64/libpuresoftkeymasterdevice.so
     copy /vendor/lib64/libsoft_attestation_cert.so /system/lib64/libsoft_attestation_cert.so
-    copy /vendor/lib64/libmtk_bsg.so /system/lib64/libmtk_bsg.so
-    copy /vendor/lib64/android.hardware.boot@1.1.so /system/lib64/android.hardware.boot@1.1.so
-    copy /vendor/lib64/android.hardware.boot-V1-ndk.so /system/lib64/android.hardware.boot-V1-ndk.so
-    symlink /dev/block/platform/bootdevice /dev/block/bootdevice
-    setprop crypto.ready 1
+
 
 on fs
-    install_keyring
+    chmod 0660 /dev/block/sdc1
+    chown root system /dev/block/sdc1
+    start vendor.boot-default
+
+    mkdir /mnt/vendor 0775 root root
+    mkdir /mnt/vendor/protect_f 0770 system system
+    mkdir /mnt/vendor/protect_s 0770 system system
+    mkdir /mnt/vendor/nvdata 0771 root system
+    mkdir /mnt/vendor/nvcfg 0771 system system
+    mkdir /mnt/vendor/persist 0755 root root
+
+    mount ext4 /dev/block/by-name/protect1 /mnt/vendor/protect_f noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc wait
+    mount ext4 /dev/block/by-name/protect2 /mnt/vendor/protect_s noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc wait
+    mount ext4 /dev/block/by-name/nvdata /mnt/vendor/nvdata noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc wait
+    mount ext4 /dev/block/by-name/nvcfg /mnt/vendor/nvcfg noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc wait
+    mount ext4 /dev/block/by-name/persist /mnt/vendor/persist noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc wait
+
     restorecon_recursive /metadata
+    restorecon_recursive /mnt/vendor/persist
 
-on property:hwservicemanager.ready=true
-    start miteelog
-    start tee-supplicant
-    start vendor.keymint-mitee
-    start vendor.gatekeeper_mitee
+    mkdir /mnt/vendor/persist/data 0755 system system
+    mkdir /mnt/vendor/persist/fdsd 0755 system system
 
-on property:ro.crypto.state=unsupported
-    stop vendor.keymint-mitee
-    stop vendor.gatekeeper_mitee
-    stop tee-supplicant
-    stop miteelog
+    setprop vendor.teefs_state ready
+    setprop ro.hardware.gatekeeper mitee
 
-on property:ro.crypto.state=unencrypted
-    stop vendor.keymint-mitee
-    stop vendor.gatekeeper_mitee
-    stop tee-supplicant
-    stop miteelog
+    symlink /dev/block/platform/bootdevice /dev/block/bootdevice
 
-on property:twrp.all.users.decrypted=true
-    stop vendor.keymint-mitee
-    stop vendor.gatekeeper_mitee
-    stop tee-supplicant
-    stop miteelog
 
-service vibratorfeature-hal-service /vendor/bin/hw/vendor.xiaomi.hardware.vibratorfeature.service
-    class hal
-    user system
-    group system input
-    disabled
-    seclabel u:r:recovery:s0
+on early-fs
+    start vold
+
+on late-fs
+    mount_all /first_stage_ramdisk/fstab.mt6897 --late
+
+on post-fs
+    exec u:r:update_engine:s0 root root -- /system/bin/mtk_plpath_utils
+    start mtk.plpath.utils.link
+
+on post-fs-data
+    chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/f0_save
+    chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/osc_save
+    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/f0_save
+    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/osc_save
+    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/custom_wave
+    chmod 0666 /sys/bus/i2c/drivers/awinic_haptic/1-005a/custom_wave
 
 service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
     class main
@@ -65,6 +74,67 @@ service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
     oneshot
     seclabel u:r:recovery:s0
 
+service haptic_hal /system/bin/haptic_hal.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+service prepdecrypt /system/bin/prepdecrypt.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+on property:ro.crypto.state=encrypted
+    start prepdecrypt
+
+on property:crypto.ready=1
+    start tee-supplicant
+    start vendor.keymint-mitee
+    start delayed_gatekeeper
+
+on property:hwservicemanager.ready=true
+    start miteelog
+
+
+on property:ro.crypto.state=unsupported
+    stop vendor.keymint-mitee
+    stop vendor.gatekeeper_mitee
+    stop tee-supplicant
+
+on property:twrp.all.users.decrypted=true
+    stop vendor.keymint-mitee
+    stop vendor.gatekeeper_mitee
+    stop tee-supplicant
+    stop miteelog
+
+on property:twrp.modules.loaded=true
+    start haptic_hal
+
 on boot
     start health-hal-2-1
     setprop sys.usb.config adb
+
+on property:persist.vendor.mtk.pl_lnk=1
+    symlink /dev/block/mapper/pl_a /dev/block/by-name/preloader_raw_a
+    symlink /dev/block/mapper/pl_b /dev/block/by-name/preloader_raw_b
+    symlink /dev/block/mapper/pl_a /dev/block/platform/bootdevice/by-name/preloader_raw_a
+    symlink /dev/block/mapper/pl_b /dev/block/platform/bootdevice/by-name/preloader_raw_b
+    symlink /dev/block/by-name/lk1 /dev/block/by-name/bootloader1
+    symlink /dev/block/by-name/lk2 /dev/block/by-name/bootloader2
+
+on property:vendor.mtk.boot0_linka=1
+    symlink /dev/block/sda /dev/block/mmcblk0boot0
+on property:vendor.mtk.boot0_linkb=1
+    symlink /dev/block/sdb /dev/block/mmcblk0boot0
+on property:vendor.mtk.boot0_linkc=1
+    symlink /dev/block/sdc /dev/block/mmcblk0boot0
+on property:vendor.mtk.boot1_linka=1
+    symlink /dev/block/sda /dev/block/mmcblk0boot1
+on property:vendor.mtk.boot1_linkb=1
+    symlink /dev/block/sdb /dev/block/mmcblk0boot1
+on property:vendor.mtk.boot1_linkc=1
+    symlink /dev/block/sdc /dev/block/mmcblk0boot1

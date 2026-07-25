@@ -3,3 +3,4 @@ service vendor.gatekeeper_mitee /vendor/bin/hw/android.hardware.gatekeeper-servi
     user system
     group system
     seclabel u:r:recovery:s0
+    disabled

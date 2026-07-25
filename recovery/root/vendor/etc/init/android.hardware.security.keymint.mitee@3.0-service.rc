@@ -1,5 +1,6 @@
 service vendor.keymint-mitee /vendor/bin/hw/android.hardware.security.keymint@3.0-service.mitee
-    class hal
+    class early_hal
     user system
     group system drmrpc
     seclabel u:r:recovery:s0
+    disabled
