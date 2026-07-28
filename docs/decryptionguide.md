@@ -95,6 +95,11 @@ Static analysis found a patchlevel anti-rollback check that could emit `-33`:
 **Tested and disproven:** Recovery's `boot.img` AVB `security_patch` (`2026-02-01`) matched stock exactly. Rebuilding with matching patchlevel did not change the error.
 
 ### 2.3 The "Root of Trust Mismatch" Red Herring
+> **Note:** An earlier working hypothesis in the raw research log
+> ([researchlog.md, Session 6](researchlog.md#session-6--mitee-keymint-ta-reverse-engineering))
+> concluded RoT mismatch was confirmed. That conclusion predates the mount-order
+> finding below and was superseded by it.
+
 
 This became a popular hypothesis because KeyMint blobs *can* be bound to:
 - Verified Boot state
