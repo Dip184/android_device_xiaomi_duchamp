@@ -570,6 +570,17 @@ twrp-12.1 (Android 12) ships libc++ incompatible with Xiaomi's Android 16 HyperO
 
 ## Session 6 — Mitee KeyMint TA Reverse Engineering
 
+> **⚠️ Superseded finding:** The Root-of-Trust conclusion below was the working
+> hypothesis at this point in the investigation (TWRP-era, dual-boot TWRP/HyperOS
+> key blob conflict). It was later investigated further and found to be
+> unconfirmed — see [decryptionguide.md §2.3](decryptionguide.md#23-the-root-of-trust-mismatch-red-herring).
+> The actual confirmed root cause of -33 (OFRP-era) was secure-storage partitions
+> (`protect_f`/`protect_s`/`nvdata`/`nvcfg`) not being mounted before KeyMint
+> starts — see [decryptionguide.md §2.4](decryptionguide.md#24-fix-mount-secure-storage-partitions-early).
+> Kept here unedited for historical accuracy of the raw investigation.
+
+
+
 ### Starting Point
 `TEEC_InvokeCommand(cmd=4)` failing with -33 during `BeginOperation`.
 
