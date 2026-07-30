@@ -1,5 +1,14 @@
 # Android fstab file for duchamp recovery
-# HyperOS 3 / Android 16
+# HyperOS 3 / Android 16 — updated by Dip
+# Adds: persist, nvdata, nvcfg, system_dlkm, boot, vendor_boot, dtbo,
+#       init_boot, vbmeta, vbmeta_system, vbmeta_vendor
+# Tiering:
+#   - Secure storage (persist/nvdata/nvcfg/protect_f/protect_s):
+#       backup=1 only — NOT wipeable, NOT flashable from GUI (holds IMEI/cal data)
+#   - Boot-chain (boot/vendor_boot/dtbo/init_boot):
+#       backup=1 + flashimg=1, wipe only under advanced wipe
+#   - vbmeta family:
+#       backup=1 + flashimg=1, no wipe (wiping empty can hard-brick AVB)
 
 # System partitions
 system                                    /system       erofs  ro                                                                    wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
@@ -9,6 +18,7 @@ product                                   /product      erofs  ro               
 odm                                       /odm          erofs  ro                                                                    wait,slotselect,avb,logical,first_stage_mount
 vendor_dlkm                               /vendor_dlkm  erofs  ro                                                                    wait,slotselect,avb,logical,first_stage_mount
 odm_dlkm                                  /odm_dlkm     erofs  ro                                                                    wait,slotselect,avb,logical,first_stage_mount
+system_dlkm                               /system_dlkm  erofs  ro                                                                    wait,slotselect,avb,logical,first_stage_mount
 
 # Metadata (CRITICAL - holds the metadata encryption master key)
 /dev/block/by-name/metadata               /metadata     f2fs   noatime,nosuid,nodev,discard                                          wait,check,formattable,first_stage_mount
@@ -19,9 +29,32 @@ odm_dlkm                                  /odm_dlkm     erofs  ro               
 # Cache
 /dev/block/by-name/rescue                 /cache        ext4   noatime,nosuid,nodev,noauto_da_alloc,discard                          wait,check,formattable
 
-# Protect/NV partitions
-/dev/block/by-name/protect1               /mnt/vendor/protect_f  ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc      wait,check,formattable
-/dev/block/by-name/protect2               /mnt/vendor/protect_s  ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc      wait,check,formattable
+# --- Secure storage / calibration (backup-only, never wipeable or flashable) ---
+# NOTE: mount points renamed to *_bak — prepdecrypt.sh mounts the real block
+# devices at /mnt/vendor/protect_f etc. before TWRP's PartitionManager runs,
+# so reusing those paths here causes "Unable to find partition" (mount collision).
+# Same underlying block device either way, so backup content is unaffected.
+/dev/block/by-name/protect1               /mnt/vendor/protect_f_bak  ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc  wait,check,formattable,flags=display="Protect_F";backup=1;canbewiped=0
+/dev/block/by-name/protect2               /mnt/vendor/protect_s_bak  ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc  wait,check,formattable,flags=display="Protect_S";backup=1;canbewiped=0
+/dev/block/by-name/nvdata                 /mnt/vendor/nvdata_bak     ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc  wait,check,formattable,flags=display="NVData (IMEI/Calibration)";backup=1;canbewiped=0
+/dev/block/by-name/nvcfg                  /mnt/vendor/nvcfg_bak      ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc  wait,check,formattable,flags=display="NVCfg";backup=1;canbewiped=0
+/dev/block/by-name/persist                /mnt/vendor/persist        ext4  noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc  wait,check,formattable,flags=display="Persist";backup=1;canbewiped=0
+
+# --- Boot-chain (backup + flashable, wipeable only under advanced wipe) ---
+# slotselect added: the plain /dev/block/by-name/boot|dtbo|vbmeta*|vendor_boot
+# aliases are created dynamically at ~09:16 boot time (bootctrl-dependent),
+# not statically at partition-table parse (~09:10). init_boot has NO generic
+# alias at all on this build — only init_boot_a/init_boot_b — so it must use
+# slotselect, it can't reference /dev/block/by-name/init_boot directly.
+/dev/block/by-name/boot                   /boot         emmc   defaults                                                              defaults,slotselect,flags=display="Boot";backup=1;flashimg=1;wipeingui
+/dev/block/by-name/vendor_boot            /vendor_boot  emmc   defaults                                                              defaults,slotselect,flags=display="Vendor Boot";backup=1;flashimg=1;wipeingui
+/dev/block/by-name/init_boot              /init_boot    emmc   defaults                                                              defaults,slotselect,flags=display="Init Boot";backup=1;flashimg=1;wipeingui
+/dev/block/by-name/dtbo                   /dtbo         emmc   defaults                                                              defaults,slotselect,flags=display="DTBO";backup=1;flashimg=1;wipeingui
+
+# --- AVB / vbmeta family (backup + flashable, no wipe — empty vbmeta can hard-brick) ---
+/dev/block/by-name/vbmeta                 /vbmeta         emmc defaults                                                              defaults,slotselect,flags=display="Vbmeta";backup=1;flashimg=1
+/dev/block/by-name/vbmeta_system          /vbmeta_system  emmc defaults                                                              defaults,slotselect,flags=display="Vbmeta System";backup=1;flashimg=1
+/dev/block/by-name/vbmeta_vendor          /vbmeta_vendor  emmc defaults                                                              defaults,slotselect,flags=display="Vbmeta Vendor";backup=1;flashimg=1
 
 # Misc
 /dev/block/by-name/misc                   /misc         emmc   defaults                                                              defaults

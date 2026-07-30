@@ -154,6 +154,10 @@ TW_DEFAULT_BRIGHTNESS := 400
 TW_MAX_BRIGHTNESS := 2047
 TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
 
+#fix battery
+TW_USE_LEGACY_BATTERY_SERVICES := true
+TW_CUSTOM_BATTERY_PATH := /sys/class/power_supply/battery
+
 TW_EXCLUDE_APEX := true
 TW_EXCLUDE_PYTHON := true
 TW_EXCLUDE_NANO := true

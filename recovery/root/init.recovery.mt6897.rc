@@ -21,7 +21,6 @@ on init
 on fs
     chmod 0660 /dev/block/sdc1
     chown root system /dev/block/sdc1
-    start vendor.boot-default
 
     mkdir /mnt/vendor 0775 root root
     mkdir /mnt/vendor/protect_f 0770 system system
@@ -99,6 +98,8 @@ on property:crypto.ready=1
 on property:hwservicemanager.ready=true
     start miteelog
 
+on property:servicemanager.ready=true
+    start vendor.boot-default
 
 on property:ro.crypto.state=unsupported
     stop vendor.keymint-mitee
