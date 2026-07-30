@@ -27,6 +27,7 @@ Extract your own: `adb pull /sdcard/recovery_blobs/ ./`
 #Not working
 
      vibration
+     flashlight
      
 ## Guides
 
