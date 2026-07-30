@@ -26,9 +26,7 @@ Extract your own: `adb pull /sdcard/recovery_blobs/ ./`
     
 #Not working
 
-     battery percentage
      vibration
-     Flashlight
      
 ## Guides
 
