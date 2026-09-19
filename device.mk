@@ -76,10 +76,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     resetprop
 
-PRODUCT_PACKAGES += \
-    libgptutils \
-    libz \
-    libcutils \
+#PRODUCT_PACKAGES += \
+    #libgptutils \
+    #libz \
+    #libcutils \
     #bootctrl.mt6897 
 
 PRODUCT_PACKAGES += \
