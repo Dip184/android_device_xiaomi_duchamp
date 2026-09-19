@@ -69,21 +69,18 @@ AB_OTA_POSTINSTALL_CONFIG += \
 # Boot control HAL
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-mtkimpl \
-    bootctrl.mt6897.recovery
-    # android.hardware.boot@1.2-mtkimpl.recovery 
-
-PRODUCT_PACKAGES += \
-    android.hardware.boot@1.2- \
-    android.hardware.boot@1.2-impl.recovery \
     android.hardware.boot@1.2-service
+    #android.hardware.boot@1.2-impl.recovery 
+    #android.hardware.boot@1.2-mtkimpl.recovery 
+    #bootctrl.mt6897.recovery 
 PRODUCT_PACKAGES += \
     resetprop
 
 PRODUCT_PACKAGES += \
-    bootctrl.mt6897 \
     libgptutils \
     libz \
     libcutils \
+    #bootctrl.mt6897 
 
 PRODUCT_PACKAGES += \
     vold.recovery \
