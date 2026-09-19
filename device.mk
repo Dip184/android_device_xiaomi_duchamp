@@ -69,8 +69,8 @@ AB_OTA_POSTINSTALL_CONFIG += \
 # Boot control HAL
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-mtkimpl \
-    android.hardware.boot@1.2-mtkimpl.recovery \
     bootctrl.mt6897.recovery
+    # android.hardware.boot@1.2-mtkimpl.recovery 
 
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2- \
@@ -134,8 +134,8 @@ PRODUCT_PACKAGES += \
     android.system.keystore2
 
 # Drm
-PRODUCT_PACKAGES += \
-    android.hardware.drm@1.4    
+#PRODUCT_PACKAGES += \
+#    android.hardware.drm@1.4    
 
 # Additional Target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
