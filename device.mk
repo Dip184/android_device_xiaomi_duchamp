@@ -70,10 +70,10 @@ AB_OTA_POSTINSTALL_CONFIG += \
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-mtkimpl \
     android.hardware.boot@1.2-service
-    #android.hardware.boot@1.2-impl.recovery 
-    #android.hardware.boot@1.2-mtkimpl.recovery 
-    #bootctrl.mt6897.recovery 
-    
+    #android.hardware.boot@1.2-impl.recovery
+    #android.hardware.boot@1.2-mtkimpl.recovery
+    #bootctrl.mt6897.recovery
+
 PRODUCT_PACKAGES += \
     resetprop
 
@@ -81,7 +81,7 @@ PRODUCT_PACKAGES += \
     #libgptutils \
     #libz \
     #libcutils \
-    #bootctrl.mt6897 
+    #bootctrl.mt6897
 
 #PRODUCT_PACKAGES += \
     #vold.recovery \
@@ -102,11 +102,11 @@ PRODUCT_PACKAGES += \
     #android.hardware.health@2.1-service \
     #android.hardware.health@2.1-impl.recovery \
     #android.hardware.health@2.1-service.rc
-    
+
 # Mtk plpath utils
 PRODUCT_PACKAGES += \
-    mtk_plpath_utils \
     mtk_plpath_utils.recovery
+    #mtk_plpath_utils
 
 # Keymaster
 PRODUCT_PACKAGES += \
@@ -133,7 +133,7 @@ PRODUCT_PACKAGES += \
 
 # Drm
 #PRODUCT_PACKAGES += \
-#    android.hardware.drm@1.4    
+#    android.hardware.drm@1.4
 
 # Additional Target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
