@@ -137,13 +137,13 @@ PRODUCT_PACKAGES += \
 
 # Additional Target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
-    android.hardware.keymaster@4.1 \
-    android.hardware.vibrator-V1-ndk_platform \
-    android.hardware.graphics.common@1.0 \
-    libion \
-    libxml2 \
-    android.hardware.health@2.0-impl-default \
     android.hardware.boot@1.0
+    #android.hardware.keymaster@4.1
+    #android.hardware.vibrator-V1-ndk_platform
+    #android.hardware.graphics.common@1.0
+    #libion
+    #libxml2
+    #android.hardware.health@2.0-impl-default
 
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.keymaster@4.1.so \
