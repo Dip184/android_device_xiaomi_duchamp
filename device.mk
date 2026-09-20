@@ -109,8 +109,8 @@ PRODUCT_PACKAGES += \
     #mtk_plpath_utils
 
 # Keymaster
-PRODUCT_PACKAGES += \
-    android.hardware.keymaster@4.1
+#PRODUCT_PACKAGES += \
+    #android.hardware.keymaster@4.1
 
 # Keymint
 PRODUCT_PACKAGES += \
