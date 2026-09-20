@@ -113,10 +113,10 @@ PRODUCT_PACKAGES += \
     #android.hardware.keymaster@4.1
 
 # Keymint
-PRODUCT_PACKAGES += \
-    android.hardware.security.keymint \
-    android.hardware.security.secureclock \
-    android.hardware.security.sharedsecret
+#PRODUCT_PACKAGES += \
+    #android.hardware.security.keymint \
+    #android.hardware.security.secureclock \
+    #android.hardware.security.sharedsecret
 
 PRODUCT_PACKAGES += \
     e2fsck.vendor_ramdisk \
