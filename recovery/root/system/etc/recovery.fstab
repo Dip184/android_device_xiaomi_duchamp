@@ -9,6 +9,15 @@
 #       backup=1 + flashimg=1, wipe only under advanced wipe
 #   - vbmeta family:
 #       backup=1 + flashimg=1, no wipe (wiping empty can hard-brick AVB)
+#
+# 2026-09-20 correction pass — diffed against stock fstab.mt6897/fstab.emmc:
+#   - userdata: added atgc,age_extent_cache,reserve_root=134217,resgid=1065,
+#     checkpoint=fs,sysfs_path to match stock fstab.mt6897 exactly (this device
+#     uses the mt6897/UFS stock table, not fstab.emmc — confirmed by
+#     fileencryption= syntax, rescue->cache, and init_boot all only existing
+#     on mt6897)
+#   - SD/OTG: added the two extra xhci* wildcard rules stock has for the
+#     second/third USB host controller (was only matching one controller)
 
 # System partitions
 system                                    /system       erofs  ro                                                                    wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
@@ -23,8 +32,8 @@ system_dlkm                               /system_dlkm  erofs  ro               
 # Metadata (CRITICAL - holds the metadata encryption master key)
 /dev/block/by-name/metadata               /metadata     f2fs   noatime,nosuid,nodev,discard                                          wait,check,formattable,first_stage_mount
 
-# Userdata - exact flags from real fstab
-/dev/block/by-name/userdata               /data         f2fs   noatime,nosuid,nodev,gc_merge,discard,noflush_merge,fsync_mode=nobarrier,inlinecrypt  wait,check,formattable,quota,latemount,resize,reservedsize=128m,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+# Userdata - exact flags from real fstab.mt6897 (this device's actual stock table)
+/dev/block/by-name/userdata               /data         f2fs   noatime,nosuid,nodev,gc_merge,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,atgc,age_extent_cache,inlinecrypt  wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,sysfs_path=/sys/devices/platform/soc/112b0000.ufshci
 
 # Cache
 /dev/block/by-name/rescue                 /cache        ext4   noatime,nosuid,nodev,noauto_da_alloc,discard                          wait,check,formattable
@@ -62,5 +71,7 @@ system_dlkm                               /system_dlkm  erofs  ro               
 # SD card
 /devices/platform/soc/11240000.mmc*       auto          auto   defaults                                                              voldmanaged=sdcard1:auto
 
-# USB OTG
-/devices/platform/usb_xhci*               auto          vfat   defaults                                                              voldmanaged=usbotg:auto
+# USB OTG (all three stock host-controller nodes, not just one)
+/devices/platform/usb_xhci*                              auto          vfat   defaults                                              voldmanaged=usbotg:auto
+/devices/platform/soc/11201000.usb0/11200000.xhci*        auto          vfat   defaults                                              voldmanaged=usbotg:auto
+/devices/platform/soc/11211000.usb1/11210000.xhci*        auto          vfat   defaults                                              voldmanaged=usbotg:auto
