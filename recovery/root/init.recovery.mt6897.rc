@@ -60,10 +60,6 @@ on post-fs
 on post-fs-data
     chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/f0_save
     chown system system /sys/bus/i2c/drivers/aw8697_haptic/2-005a/osc_save
-    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/f0_save
-    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/osc_save
-    chown system system /sys/bus/i2c/drivers/awinic_haptic/1-005a/custom_wave
-    chmod 0666 /sys/bus/i2c/drivers/awinic_haptic/1-005a/custom_wave
 
 service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
     class main
@@ -73,12 +69,6 @@ service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
     oneshot
     seclabel u:r:recovery:s0
 
-service haptic_hal /system/bin/haptic_hal.sh
-    user root
-    group root
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
 
 service prepdecrypt /system/bin/prepdecrypt.sh
     user root
@@ -112,8 +102,6 @@ on property:twrp.all.users.decrypted=true
     stop tee-supplicant
     stop miteelog
 
-on property:twrp.modules.loaded=true
-    start haptic_hal
 
 on boot
     start health-hal-2-1

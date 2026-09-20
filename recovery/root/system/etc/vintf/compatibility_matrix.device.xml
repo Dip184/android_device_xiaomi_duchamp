@@ -249,14 +249,6 @@
         </interface>
     </hal>
     <hal format="aidl" optional="true">
-        <name>android.hardware.vibrator</name>
-        <version>1-2</version>
-        <interface>
-            <name>IVibrator</name>
-            <instance>vibratorfeature</instance>
-        </interface>
-    </hal>
-    <hal format="aidl" optional="true">
         <name>arm.mali.platform</name>
         <version>1-2</version>
         <interface>
