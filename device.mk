@@ -88,13 +88,13 @@ PRODUCT_PACKAGES += \
     #vold_prepare_subdirs.recovery \
     #wait_for_keymaster.recovery
 
-PRODUCT_PACKAGES += \
-    otapreopt_script \
-    cppreopts.sh \
-    update_engine \
-    update_verifier \
-    update_engine_sideload \
-    checkpoint_gc
+#PRODUCT_PACKAGES += \
+    #otapreopt_script \
+    #cppreopts.sh \
+    #update_engine \
+    #update_verifier \
+    #update_engine_sideload \
+    #checkpoint_gc
 
 # Health
 PRODUCT_PACKAGES += \
