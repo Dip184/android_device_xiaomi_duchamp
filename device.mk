@@ -128,12 +128,12 @@ PRODUCT_PACKAGES += \
     fstab.mt6897.vendor_ramdisk
 
 # Keystore2
-PRODUCT_PACKAGES += \
-    android.system.keystore2
+#PRODUCT_PACKAGES += \
+    #android.system.keystore2
 
 # Drm
 #PRODUCT_PACKAGES += \
-#    android.hardware.drm@1.4
+    #android.hardware.drm@1.4
 
 # Additional Target Libraries
 TARGET_RECOVERY_DEVICE_MODULES += \
